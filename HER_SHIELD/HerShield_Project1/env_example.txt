@@ -1,0 +1,19 @@
+# Flask Configuration
+SECRET_KEY=your-secret-key-here
+FLASK_ENV=production
+FLASK_DEBUG=False
+
+# Gemini AI Configuration
+GEMINI_API_KEY=your-gemini-api-key-here
+
+# Twilio Configuration (for SMS)
+TWILIO_ACCOUNT_SID=your-twilio-account-sid
+TWILIO_AUTH_TOKEN=your-twilio-auth-token
+TWILIO_PHONE_NUMBER=your-twilio-phone-number
+
+# Database Configuration
+DATABASE_URL=sqlite:///database/users.db
+ALERT_DATABASE_URL=sqlite:///database/alerts.db
+
+# Weather API Configuration
+WEATHER_API_KEY=your-openweathermap-api-key 

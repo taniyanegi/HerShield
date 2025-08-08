@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HerShield AI Assistant</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .chatbot-container {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+            height: 80vh;
+            margin: 10vh auto;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .chatbot-header {
+            background: linear-gradient(45deg, #ff4d79, #ff3366);
+            color: #fff;
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+        }
+        
+        .chatbot-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .chatbot-header .status {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-top: 0.5rem;
+        }
+        
+        .chat-area {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            background: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .message {
+            max-width: 80%;
+            padding: 1rem 1.5rem;
+            border-radius: 20px;
+            position: relative;
+            animation: fadeIn 0.3s ease-in;
+            word-wrap: break-word;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .message.user {
+            background: linear-gradient(45deg, #ff4d79, #ff3366);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .message.bot {
+            background: white;
+            color: #333;
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .message.typing {
+            background: white;
+            color: #666;
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+            font-style: italic;
+        }
+        
+        .typing-indicator {
+            display: flex;
+            gap: 0.3rem;
+            align-items: center;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #ccc;
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+        
+        .chat-input-container {
+            background: white;
+            padding: 1.5rem;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .chat-input {
+            flex: 1;
+            border: 2px solid #eee;
+            border-radius: 25px;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        .chat-input:focus {
+            border-color: #ff4d79;
+        }
+        
+        .send-btn {
+            background: linear-gradient(45deg, #ff4d79, #ff3366);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .send-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .send-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .quick-actions {
+            padding: 1rem 1.5rem;
+            background: white;
+            border-top: 1px solid #eee;
+        }
+        
+        .quick-actions h6 {
+            margin-bottom: 0.8rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .quick-btn {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            margin: 0.2rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .quick-btn:hover {
+            background: #ff4d79;
+            color: white;
+            border-color: #ff4d79;
+        }
+        
+        .suggestions-container {
+            padding: 1rem 1.5rem;
+            background: #f8f9fa;
+            border-top: 1px solid #eee;
+        }
+        
+        .suggestions-container h6 {
+            margin-bottom: 0.8rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .suggestion-btn {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 15px;
+            padding: 0.4rem 0.8rem;
+            margin: 0.2rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-block;
+        }
+        
+        .suggestion-btn:hover {
+            background: #ff4d79;
+            color: white;
+            border-color: #ff4d79;
+            transform: translateY(-1px);
+        }
+        
+        .empty-state {
+            text-align: center;
+            color: #666;
+            margin-top: 2rem;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            color: #ddd;
+            margin-bottom: 1rem;
+        }
+        
+        .voice-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-right: 0.5rem;
+        }
+        
+        .voice-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .voice-btn.recording {
+            background: #dc3545;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .context-indicator {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 0.3rem 0.8rem;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+            display: inline-block;
+        }
+        
+        @media (max-width: 600px) {
+            .chatbot-container {
+                margin: 0;
+                height: 100vh;
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chatbot-container">
+        <div class="chatbot-header">
+            <h2><i class="fas fa-robot me-2"></i>HerShield AI</h2>
+            <div class="status">Online • Ready to help</div>
+        </div>
+        
+        <div class="chat-area" id="chatArea">
+            <div class="message bot">
+                <strong>Hello! 👋</strong><br>
+                I'm your HerShield AI assistant, and I'm here to help you with absolutely anything on your mind! Whether you have questions about:
+                <br>• Safety, security, or emergency situations
+                <br>• Physical or mental health and wellness
+                <br>• Relationships, boundaries, or personal growth
+                <br>• Career advice or workplace challenges
+                <br>• Self-defense techniques and confidence building
+                <br>• Legal rights and resources
+                <br>• Or anything else you'd like to discuss
+                <br><br>
+                I'm ready to provide detailed, supportive, and comprehensive answers to help you feel empowered and informed. What would you like to talk about today?
+            </div>
+        </div>
+        
+        <div class="suggestions-container" id="suggestionsContainer" style="display: none;">
+            <h6><i class="fas fa-lightbulb me-1"></i>Suggested Questions</h6>
+            <div id="suggestionsList"></div>
+        </div>
+        
+        <div class="quick-actions">
+            <h6><i class="fas fa-lightbulb me-1"></i>Quick Actions</h6>
+            <button class="quick-btn" onclick="sendQuickMessage('How can I stay safe while traveling?')">Travel Safety</button>
+            <button class="quick-btn" onclick="sendQuickMessage('What are some self-defense techniques?')">Self Defense</button>
+            <button class="quick-btn" onclick="sendQuickMessage('How can I build confidence?')">Build Confidence</button>
+            <button class="quick-btn" onclick="sendQuickMessage('What are my legal rights?')">Legal Rights</button>
+        </div>
+        
+        <div class="chat-input-container">
+            <button class="voice-btn" id="voiceBtn" onclick="toggleVoiceInput()">
+                <i class="fas fa-microphone"></i>
+            </button>
+            <input type="text" class="chat-input" id="userInput" placeholder="Type your message..." autocomplete="off">
+            <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const chatArea = document.getElementById('chatArea');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const voiceBtn = document.getElementById('voiceBtn');
+        const suggestionsContainer = document.getElementById('suggestionsContainer');
+        const suggestionsList = document.getElementById('suggestionsList');
+        
+        let isTyping = false;
+        let conversationHistory = [];
+        let isRecording = false;
+
+        // Handle Enter key
+        userInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Auto-resize input
+        userInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+
+        function sendQuickMessage(message) {
+            userInput.value = message;
+            sendMessage();
+        }
+
+        function addMessage(content, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            
+            // Add context indicator if it's a bot message and context was used
+            if (type === 'bot' && conversationHistory.length > 0) {
+                messageDiv.innerHTML = `<div class="context-indicator"><i class="fas fa-brain me-1"></i>Context-aware response</div>${content}`;
+            } else {
+                messageDiv.innerHTML = content;
+            }
+            
+            chatArea.appendChild(messageDiv);
+            chatArea.scrollTop = chatArea.scrollHeight;
+            
+            // Add to conversation history
+            conversationHistory.push({
+                type: type,
+                content: content,
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot typing';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = `
+                <div class="typing-indicator">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <span style="margin-left: 0.5rem;">AI is thinking...</span>
+                </div>
+            `;
+            chatArea.appendChild(typingDiv);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            const typingIndicator = document.getElementById('typingIndicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        function showSuggestions(suggestions) {
+            if (suggestions && suggestions.length > 0) {
+                suggestionsList.innerHTML = '';
+                suggestions.forEach(suggestion => {
+                    const btn = document.createElement('button');
+                    btn.className = 'suggestion-btn';
+                    btn.textContent = suggestion;
+                    btn.onclick = () => sendQuickMessage(suggestion);
+                    suggestionsList.appendChild(btn);
+                });
+                suggestionsContainer.style.display = 'block';
+            } else {
+                suggestionsContainer.style.display = 'none';
+            }
+        }
+
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message || isTyping) return;
+
+            // Add user message
+            addMessage(message, 'user');
+            userInput.value = '';
+            sendBtn.disabled = true;
+
+            // Show typing indicator
+            showTypingIndicator();
+            isTyping = true;
+
+            try {
+                const response = await fetch('/chatbot', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `user_input=${encodeURIComponent(message)}&conversation_history=${encodeURIComponent(JSON.stringify(conversationHistory))}`
+                });
+
+                const data = await response.json();
+                
+                // Hide typing indicator
+                hideTypingIndicator();
+                
+                if (data.response) {
+                    addMessage(data.response, 'bot');
+                    
+                    // Show suggestions if available
+                    if (data.suggestions) {
+                        showSuggestions(data.suggestions);
+                    }
+                    
+                    // Show context indicator if context was used
+                    if (data.context_used) {
+                        const lastMessage = chatArea.lastElementChild;
+                        if (lastMessage && lastMessage.classList.contains('bot')) {
+                            const contextIndicator = lastMessage.querySelector('.context-indicator');
+                            if (contextIndicator) {
+                                contextIndicator.style.display = 'inline-block';
+                            }
+                        }
+                    }
+                } else {
+                    // Fallback response
+                    addMessage('I apologize, but I\'m having trouble processing your request right now. Please try again in a moment.', 'bot');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                hideTypingIndicator();
+                addMessage('I\'m sorry, there was an error processing your request. Please check your internet connection and try again.', 'bot');
+            }
+
+            isTyping = false;
+            sendBtn.disabled = false;
+            userInput.focus();
+            
+            // Auto-scroll to bottom
+            setTimeout(() => {
+                chatArea.scrollTop = chatArea.scrollHeight;
+            }, 100);
+        }
+
+        function toggleVoiceInput() {
+            if (!isRecording) {
+                startVoiceRecording();
+            } else {
+                stopVoiceRecording();
+            }
+        }
+
+        function startVoiceRecording() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                const recognition = new SpeechRecognition();
+                
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = 'en-US';
+                
+                recognition.onstart = function() {
+                    isRecording = true;
+                    voiceBtn.classList.add('recording');
+                    voiceBtn.innerHTML = '<i class="fas fa-stop"></i>';
+                };
+                
+                recognition.onresult = function(event) {
+                    const transcript = event.results[0][0].transcript;
+                    userInput.value = transcript;
+                    sendMessage();
+                };
+                
+                recognition.onerror = function(event) {
+                    console.error('Speech recognition error:', event.error);
+                    stopVoiceRecording();
+                };
+                
+                recognition.onend = function() {
+                    stopVoiceRecording();
+                };
+                
+                recognition.start();
+            } else {
+                alert('Speech recognition is not supported in this browser.');
+            }
+        }
+
+        function stopVoiceRecording() {
+            isRecording = false;
+            voiceBtn.classList.remove('recording');
+            voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+        }
+
+        // Focus on input when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            userInput.focus();
+        });
+    </script>
+</body>
+</html>

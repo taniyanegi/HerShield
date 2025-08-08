@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Emergency</title>
+</head>
+<body>
+    <h2>Press the Button in Emergency</h2>
+    <button onclick="getLocation()">🔴 Send Alert</button>
+    <p id="location"></p>
+    <script src="{{ url_for('static', filename='js/voice.js') }}"></script>
+
+
+    <script>
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition);
+            } else {
+                document.getElementById("location").innerHTML = "Geolocation is not supported.";
+            }
+        }
+        
+
+        function showPosition(position) {
+            fetch('/send_location', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude
+                })
+            }).then(res => {
+                document.getElementById("location").innerHTML = "🚨 Alert Sent with Location!";
+            });
+        }
+    </script>
+</body>
+</html>
