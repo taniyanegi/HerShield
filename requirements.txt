@@ -4,4 +4,5 @@ python-dotenv==1.0.0
 twilio==8.10.0
 
 google-generativeai==0.3.2 
-gunicorn app:app
+gunicorn
+
